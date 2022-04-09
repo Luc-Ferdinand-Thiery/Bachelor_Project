@@ -14,7 +14,7 @@ import cryptography
 from flask import Flask, request
 import requests
 
-from files.Nodes.Admins import *
+from files.Node.Admins import *
 
 app = Flask(__name__)
 # the address to other participating members of the network
@@ -206,7 +206,7 @@ class Block:
 
 
         #Block Data
-        self.admins = admins #stores all admins to become C-Nodes -> "Address":pubkey
+        self.admins = admins #stores all admins to become C-Node -> "Address":pubkey
         self.unverified_addresses = unverified_addresses    # "hash":"prefix"
         self.verified_addresses = verified_addresses        # "Address":[pub_key,token]
                                                                         #token = 1 -> can vote

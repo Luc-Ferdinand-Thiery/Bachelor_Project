@@ -1,7 +1,7 @@
 import base58
 from Crypto.PublicKey import RSA
 import pandas
-from files.Nodes.XX_utils import *
+from files.Node.XX_utils import *
 import ast
 
 
