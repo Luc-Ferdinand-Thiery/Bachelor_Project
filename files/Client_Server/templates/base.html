@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <div><a href="/index">Home</a></div>
+
+    <center><h1>{{ title }}</h1></center>
+    <center><h1> Connected to Node: {{ node_address }}</h1></center>
+
+    <hr>
+
+
+
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li>{{ message }} </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+
+    {% block content %}{% endblock %}
+
+  <style>
+		.voteblock {
+		    background: #fff;
+            margin-left: 12px;
+            margin-right: 12px;
+		    margin-bottom: 20px;
+		    border: 2px solid #f0f0f0;
+            width: 30%;
+            float:left;
+
+		}
+        .fl{
+          float:left;
+        }
+
+        .center{
+          text-align: center;
+        }
+  </style>
+  </body>
+
+</html>

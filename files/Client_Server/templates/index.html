@@ -1,0 +1,83 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+	<br>
+	<div>
+      <h3 class="center">
+        Candidates
+      </h3>
+
+      <div class="vblock center">
+
+        <form action="/submit" id="Candidate" method="post">
+			{% for CAND in x_cands %}
+			<input type="radio" name="VV" value={{CAND}}>{{CAND}}
+			<br>
+			{% endfor %}
+			<br>
+			<input type="submit" value="vote">
+        </form>
+
+      </div>
+
+    </div>
+
+
+	<br>
+	<div class="center">
+		<a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
+		<a href="/"><button>Resync</button></a>
+	</div>
+
+
+	<div style="margin: 20px;">
+
+    {% for vote in votes %}
+
+
+    <div class="box">
+	  <div class="time"> Voted at <i>{{readable_time(vote.timestamp)}}</i></div>
+	  <div class="candidate">
+		 <p>{{vote.vote}}</p>
+	  </div>
+	</div>
+
+	{% endfor %}
+
+	<style>
+		.box {
+		    background: #fff;
+		    padding: 12px 0px 0px 12px;
+		    margin-top: 0px;
+		    margin-bottom: 8px;
+		    border-top: 1px solid #f0f0f0;
+		}
+
+		.time {
+		    padding-bottom: 12px;
+		}
+
+		.candidate {
+		    color: #777;
+		}
+
+
+		.option-btn {
+		    background: #f8f8f8;
+		    border: none;
+		    color: #2c3e50;
+		    padding: 7px;
+		    cursor: pointer;
+		    font-size: 14px;
+		    margin-left: 2px;
+		    margin-right: 2px;
+		    outline: none;
+		    height: 42px;
+		}
+		.center{
+          text-align: center;
+        }
+	</style>
+    </div>
+{% endblock %}
