@@ -14,7 +14,7 @@ import cryptography
 from flask import Flask, request
 import requests
 
-from files.Node.Admins import *
+from code.Node.Admins import *
 
 app = Flask(__name__)
 # the address to other participating members of the network

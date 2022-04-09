@@ -2,7 +2,7 @@ import base58
 from Crypto.PublicKey import RSA
 import binascii
 import csv
-from files.Node.XX_utils import *
+from code.Node.XX_utils import *
 from Crypto.Hash import SHA256
 from Crypto.Signature import pkcs1_15
 
