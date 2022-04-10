@@ -1,11 +1,10 @@
-#C-Node
-#Stores all Data & sends it to all other nodes
-
 from hashlib import sha256
 import json
 import time
+import ast
 
 from Crypto.Hash import SHA256
+from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 
 from cryptography.fernet import Fernet
@@ -13,8 +12,9 @@ import cryptography
 
 from flask import Flask, request
 import requests
+import pandas
 
-from code.Node.Admins import *
+from Node.Admins import wallet
 
 app = Flask(__name__)
 # the address to other participating members of the network
@@ -29,9 +29,9 @@ peers = set()
 df = pandas.read_csv('Admins.csv')
 data={}
 for i in df.index:
-    data["address"]=df.iloc[i][0]
-    data["private_key"] = df.iloc[i][1]
-    data["public_key"] = df.iloc[i][2]
+    #0=address
+    #1=public_key
+    data[df.iloc[i][0]] = df.iloc[i][2]
 
 Genesis_Admins = json.dumps(data)
 ##############################################
@@ -41,8 +41,6 @@ Genesis_Admins = json.dumps(data)
 My_Wallet=wallet()
 My_Wallet.load(df.iloc[0][0],df.iloc[0][1],df.iloc[0][2])
 
-print(My_Wallet.address, My_Wallet.private_key, My_Wallet.public_key)
-print(data)
 
 ################# Functions #############################
 
@@ -249,8 +247,8 @@ class Blockchain:
 
 
         g_block = Block(
-            owner=My_Wallet.address,
-            signature=signature,
+            owner=str(My_Wallet.address),
+            signature=str(signature),
             index=0,
             timestamp=0,
             previous_hash=0,
@@ -379,8 +377,8 @@ class Blockchain:
         signature = create_signature(Data, My_Wallet.private_key)
 
         new_block = Block(
-            owner=My_Wallet.address,
-            signature=signature,
+            owner=str(My_Wallet.address),
+            signature=str(signature),
             index=last_block.index + 1,
             timestamp=timestamp,
             previous_hash=last_block.hash,
@@ -403,6 +401,7 @@ class Blockchain:
 # the node's copy of blockchain
 blockchain = Blockchain()
 blockchain.create_genesis_block()
+
 
 
 
@@ -735,3 +734,4 @@ def register_with_existing_node():
 # Uncomment this line if you want to specify the port number in the code
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
+
