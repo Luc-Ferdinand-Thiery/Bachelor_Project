@@ -195,4 +195,7 @@ def importting():
     print(X_Address)
 
 if __name__ == '__main__':
-    importting()
+    data={"a":1,"b":2}
+
+    for i in data:
+        print(i)

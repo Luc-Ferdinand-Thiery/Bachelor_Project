@@ -187,7 +187,8 @@ class vote:
     def __init__(self, address, data, signature):
         self.address=address
         self.data = data
-        self.signature = signature #
+        self.signature = signature
+#check
 #check
 class Block:
     def __init__(self, owner, signature, index, timestamp, previous_hash, admins, unverified_addresses, verified_addresses, votes, nonce=0):
@@ -420,14 +421,11 @@ def vote():
 
     user_address = request.get_json()["user_address"]       #user addresse
     user_signature = request.get_json()["signature"]        #signature
-    vote = request.get_json()["vote"]                       #vote as whole
     ballot = request.get_json()["ballot"]                   #just the ballot
 
     if not user_address:
         return "Invalid data", 400
     if not user_signature:
-        return "Invalid data", 400
-    if not vote:
         return "Invalid data", 400
     if not ballot:
         return "Invalid data", 400
@@ -441,16 +439,16 @@ def vote():
     for i in Addresses:
         if i == user_address:
             if Addresses[i][1]==1: #check if user still has a token
-                if validate_signature(user_address, user_signature, vote) == True: #if signature is validated
+                if validate_signature(user_address, user_signature, ballot) == True: #if signature is validated
                     pub_key=Addresses[i][0]
-
-                    new_vote=vote(user_address, ballot, user_signature) #creates new object
+                    new_vote = vote(user_address, ballot, user_signature)
                     blockchain.add_new_vote(new_vote) #adds the vote object to other votes
                     blockchain.check_of_voter(user_address,pub_key) #adds another instance of the voter to the address
                     return "success", 200
                 return "Invalid Signature", 400
             return "Already Voted", 400
         return "Address not found", 400
+
 #check
 @app.route('/verify', methods=['POST'])
 def verify():
@@ -485,6 +483,7 @@ def verify():
             except (cryptography.fernet.InvalidToken, TypeError):
                 return "Wrong Password", 400
         return "Wrong Prefix", 400
+
 #check
 #admins
 @app.route('/add_user', methods=['POST'])
@@ -517,6 +516,38 @@ def add_user():
 
         return "Invalid User", 400
 
+#check
+#admins
+@app.route('/add_admin', methods=['POST'])
+def add_admin():
+    admin_address = request.get_json()["admin_address"]
+    admin_signature = request.get_json()["admin_signature"]
+    data = request.get_json()["data"]
+
+    #data-> "{  "hash":hash,
+    #           "prefix":prefix}"
+
+    if not admin_address:
+        return "Invalid data", 400
+    if not admin_signature:
+        return "Invalid data", 400
+    if not data:
+        return "Invalid data", 400
+
+    # Checks if User and Signature is correct -> public key verification
+
+    Admins=get_admins()
+
+    for i in Admins:
+        if i == admin_address:
+            p_key=Admins[i]
+            if validate_signature(p_key, admin_signature, data) == True:
+                dict1 = json.loads(data)
+                blockchain.add_new_admin(dict1["address"], dict1["pub_key"])
+            return "Invalid User", 400
+
+        return "Invalid User", 400
+
 # endpoint to add a block mined by someone else to
 # the node's chain. The block is first verified by the node
 # and then added to the chain.
@@ -543,12 +574,10 @@ def verify_and_add_block():
     for i in Admins:
         if i == admin_address:
             p_key = Admins[i]
-            if validate_signature(p_key, admin_signature, data) == True:
-                dict1 = json.loads(data)
-                blockchain.add_new_unverified_addresses(dict1["hash"], dict1["prefix"])
+            if validate_signature(p_key, admin_signature, data) == False:
+                return "Invalid User", 400
+        else:
             return "Invalid User", 400
-
-        return "Invalid User", 400
 
     if validate_signature(block_data["owner"],block_data["signature"],data) == False:
         return "The block was discarded by the node: Invalid Signature", 400
@@ -616,10 +645,10 @@ def mine_unconfirmed_transactions():
             announce_new_block(blockchain.last_block)
         return "Block #{} is mined.".format(blockchain.last_block.index)
 
-# endpoint to query unconfirmed transactions
-@app.route('/pending_tx', methods=['GET'])
+# endpoint to query unconfirmed votes
+@app.route('/pending_votes', methods=['GET'])
 def get_pending_tx():
-    return json.dumps(blockchain.unconfirmed_transactions)
+    return json.dumps(blockchain.unconfirmed_votes)
 
 
 
@@ -664,8 +693,8 @@ def register_new_peers():
     #Checks if User and Signature is correct -> public key verification
     for i in Admins:
         if i == admin_address:
-            p_key = Admins[i]
-            if validate_signature(p_key, admin_signature, admin_text) == False:
+            pub_key = Admins[i]
+            if validate_signature(pub_key, admin_signature, admin_text) == False:
                 return "Invalid User", 400
         return "Invalid User", 400
 
