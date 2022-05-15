@@ -1,3 +1,10 @@
+#Sections commented with #1 or #2 have been taken by a tutorial
+
+#1:https://morioh.com/p/6ce626743452 & https://github.com/satwikkansal/python_blockchain_app/blob/ibm_blockchain_post/node_server.py
+#2: https://gruyaume.medium.com/create-your-own-blockchain-using-python-merkle-tree-pt-2-f84478a30690
+
+
+
 import base58
 from Crypto.PublicKey import RSA
 import pandas
@@ -8,6 +15,7 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Hash import RIPEMD160, SHA256
 import json
 
+#2
 def calculate_hash(data, hash_function: str = "sha256"):
     if type(data) == str:
         data = bytearray(data, "utf-8")
@@ -20,7 +28,7 @@ def calculate_hash(data, hash_function: str = "sha256"):
         h.update(data)
         return h.hexdigest()
 
-
+#2
 def generate_transaction_data(sender_bitcoin_address, receiver_bitcoin_address, amount: int) -> dict:
     return {
         "sender": sender_bitcoin_address,
@@ -28,7 +36,7 @@ def generate_transaction_data(sender_bitcoin_address, receiver_bitcoin_address, 
         "amount": amount
     }
 
-
+#2
 def convert_transaction_data_to_bytes(transaction_data: dict):
     new_transaction_data = transaction_data.copy()
     new_transaction_data["sender"] = str(transaction_data["sender"])
@@ -36,6 +44,7 @@ def convert_transaction_data_to_bytes(transaction_data: dict):
     new_transaction_data["amount"] = str(transaction_data["amount"])
     return json.dumps(new_transaction_data, indent=2).encode('utf-8')
 
+#2
 def validate_signature(public_key, signature, data:dict):
     if isinstance(public_key, str) and isinstance(signature, str):
         public_key=ast.literal_eval(public_key)
@@ -52,6 +61,7 @@ def validate_signature(public_key, signature, data:dict):
         #error signature not correct
         return False
 
+#2
 def create_signature(Data, Private_Key):
     bytes=json.dumps(Data, indent=2).encode('utf-8')
     hash_object = SHA256.new(bytes)
@@ -67,6 +77,7 @@ class wallet:
         self.public_key = None
 
     #creates a completley new wallet
+    #2
     def create(self):
         private_key = RSA.generate(2048) #creates private key
         self.public_key = private_key.publickey().export_key()

@@ -1,3 +1,10 @@
+#Sections commented with #1 or #2 have been taken by a tutorial
+
+#1:https://morioh.com/p/6ce626743452 & https://github.com/satwikkansal/python_blockchain_app/blob/ibm_blockchain_post/node_server.py
+#2: https://gruyaume.medium.com/create-your-own-blockchain-using-python-merkle-tree-pt-2-f84478a30690
+
+
+
 from hashlib import sha256
 import json
 import time
@@ -45,7 +52,6 @@ My_Wallet.load(df.iloc[0][0],df.iloc[0][1],df.iloc[0][2])
 ################# Functions #############################
 
 #returns all admins
-#check
 def get_admins():
     addresses={}
     for block in blockchain.chain:
@@ -55,7 +61,6 @@ def get_admins():
     return addresses
 
 #returns all unverified users
-#check
 def get_unverfied_addresses():
     addresses={}
     for block in blockchain.chain:
@@ -65,7 +70,6 @@ def get_unverfied_addresses():
     return addresses
 
 #returns all verified users
-#check
 def get_verfied_addresses():
     addresses={}
     for block in blockchain.chain:
@@ -76,7 +80,6 @@ def get_verfied_addresses():
     return addresses
 
 #validates if a signature is valid or not
-#check
 def validate_signature(public_key, signature, data:dict):
     if isinstance(public_key, str) and isinstance(signature, str):
         public_key=ast.literal_eval(public_key)
@@ -94,7 +97,6 @@ def validate_signature(public_key, signature, data:dict):
         return False
 
 #creates a signature
-#check
 def create_signature(Data, Private_Key):
     bytes=json.dumps(Data, indent=2).encode('utf-8')
     hash_object = SHA256.new(bytes)
@@ -103,7 +105,7 @@ def create_signature(Data, Private_Key):
     return signature
 
 #create the chain
-#check
+#1
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
     generated_blockchain.create_genesis_block()
@@ -140,7 +142,7 @@ def create_chain_from_dump(chain_dump):
     return generated_blockchain
 
 #check for longest chain -> consensus algorithm
-#check
+#1
 def consensus():
     """
     Our naive consensus algorithm. If a longer valid chain is
@@ -166,7 +168,7 @@ def consensus():
     return False
 
 #send new block to other partys
-#check
+#1
 def announce_new_block(block):
     """
     A function to announce to the network once a block has been mined.
@@ -182,14 +184,13 @@ def announce_new_block(block):
 
 
 ################# Block and Blockchain Objects #############################
-#check
 class vote:
     def __init__(self, address, data, signature):
         self.address=address
         self.data = data
         self.signature = signature
-#check
-#check
+
+#1
 class Block:
     def __init__(self, owner, signature, index, timestamp, previous_hash, admins, unverified_addresses, verified_addresses, votes, nonce=0):
 
@@ -213,11 +214,12 @@ class Block:
         self.votes = votes
 
 
+        #method that creates the currents block hash
     def compute_hash(self):
-        #A function that returns the hash of the block contents.
         block_str = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_str.encode()).hexdigest()
-#check
+
+#1
 class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
@@ -232,9 +234,8 @@ class Blockchain:
         self.chain = [] #all transactions
 
     def create_genesis_block(self):
-        """
-        Method to create Genesis Block
-        """
+        #Method to create Genesis Block
+
         #Data -> Nonce by default=0
         Data={"index":0,
               "timestamp":0,
@@ -414,7 +415,6 @@ blockchain.create_genesis_block()
 
 ################ POST #################################
 # endpoint to vote -> check if vote is eligible
-#check
 @app.route('/vote', methods=['POST'])
 def vote():
     Addresses=get_verfied_addresses()
@@ -449,7 +449,6 @@ def vote():
             return "Already Voted", 400
         return "Address not found", 400
 
-#check
 @app.route('/verify', methods=['POST'])
 def verify():
     #Fernet sha 256 encryption
@@ -484,7 +483,6 @@ def verify():
                 return "Wrong Password", 400
         return "Wrong Prefix", 400
 
-#check
 #admins
 @app.route('/add_user', methods=['POST'])
 def add_user():
@@ -516,7 +514,6 @@ def add_user():
 
         return "Invalid User", 400
 
-#check
 #admins
 @app.route('/add_admin', methods=['POST'])
 def add_admin():
@@ -551,7 +548,7 @@ def add_admin():
 # endpoint to add a block mined by someone else to
 # the node's chain. The block is first verified by the node
 # and then added to the chain.
-#check
+#1
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
     admin_address = request.get_json()["admin_address"]
@@ -617,7 +614,7 @@ def verify_and_add_block():
 # endpoint to return the node's copy of the chain.
 # Our application will be using this endpoint to query
 # all the posts to display.
-#check
+#1
 @app.route('/chain', methods=['GET'])
 def get_chain():
     chain_data = []
@@ -631,6 +628,7 @@ def get_chain():
 # endpoint to request the node to mine the unconfirmed
 # transactions (if any). We'll be using it to initiate
 # a command to mine from our application itself.
+#1
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
     result = blockchain.mine()
@@ -668,9 +666,9 @@ def get_pending_tx():
 ################# Network Access API endpoints #############################
 #to register others
 #only allows people to register that have a valid addresse
-#check
-@app.route('/register_node', methods=['POST'])
-def register_new_peers():
+#1
+@app.route('/register', methods=['POST'])
+def register_new_peer():
 
     node_address = request.get_json()["node_address"]
     if not node_address:
@@ -707,9 +705,9 @@ def register_new_peers():
 
 
 #to register himself
-#check
-@app.route('/register_with', methods=['POST'])
-def register_with_existing_node():
+#1
+@app.route('/connect', methods=['POST'])
+def connect_with_network():
     """
     Internally calls the `register_node` endpoint to
     register current node with the node specified in the
@@ -741,7 +739,7 @@ def register_with_existing_node():
     headers = {'Content-Type': "application/json"}
 
     # Make a request to register with remote node and obtain information
-    response = requests.post(node_address + "/register_node",
+    response = requests.post(node_address + "/register",
                              data=json.dumps(data), headers=headers)
 
     if response.status_code == 200:
